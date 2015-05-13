@@ -57,6 +57,7 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
 			<version>${spring.version}</version>
+                        <scope>test</scope>
 		</dependency>
 	</dependencies>
 
