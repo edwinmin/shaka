@@ -80,5 +80,6 @@
 		<module>shaka-utils</module>
 		<module>shaka-scheduler</module>
     <module>shaka-zookeeper</module>
-  </modules>
+		<module>shaka-persist</module>
+	</modules>
 </project>
