@@ -1,5 +1,6 @@
-package com.edwin.shakazookeeper;
+package com.edwin.shakazookeeper.operator;
 
+import com.edwin.shakazookeeper.ZKOperator;
 import com.edwin.shakazookeeper.client.ZKClient;
 
 /**
@@ -8,7 +9,9 @@ import com.edwin.shakazookeeper.client.ZKClient;
  */
 public abstract class AbtractShakaZKOperator implements ZKOperator {
 
-    protected ZKClient zkClient;
+    protected static volatile boolean isInit = false;
+
+    protected ZKClient                zkClient;
 
     @Override
     public void setZKClient(ZKClient zkClient) {
