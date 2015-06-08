@@ -1,10 +1,10 @@
 package com.edwin.shakapersist;
 
-import com.alibaba.fastjson.JSON;
-import com.edwin.shakapersist.dao.ShakaHostDao;
-import com.edwin.shakapersist.entity.ShakaHost;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.edwin.shakapersist.dao.ShakaHostDao;
+import com.edwin.shakapersist.entity.ShakaHost;
 
 /**
  * Created by shichao.liao on 15/5/22.
@@ -26,12 +26,11 @@ public class ShakaHostTest extends AbstractTest{
 
     @Test
     public void testLoadShakaHost(){
-        ShakaHost shakaHost =shakaHostDao.loadShakaHost("tests");
-        System.out.println(JSON.toJSONString(shakaHost));
+        shakaHostDao.loadShakaHost("tests");
     }
     
     @Test
-    public void testAddOrUpdate(){
+    public void test(){
         ShakaHost shakaHost = new ShakaHost();
         shakaHost.setIP("192.168.0.1");
         shakaHost.setOnline(0);
