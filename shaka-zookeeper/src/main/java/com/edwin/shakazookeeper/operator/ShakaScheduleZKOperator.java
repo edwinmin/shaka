@@ -138,8 +138,13 @@ public class ShakaScheduleZKOperator extends ShakaHeatBeatZKOperator implements 
             if (!condition.await(10, TimeUnit.SECONDS)) {
                 throw new ExecuteException("Delete instance " + instanceId + " timeout.");
             }
+
+            // validate the result of kill task
             runContext = (ExeContext) zkClient.getObject(path, false);
-            if(runContext == null || runContext.getZkStatus() != )
+            if (runContext == null || runContext.getZkStatus() != ZKStatus.DELETED.code) {
+                throw new ExecuteException("Delete instance " + instanceId
+                                           + " error due to it's status is not deleted. ");
+            }
         } catch (InterruptedException e) {
             throw new ExecuteException("Delete instance " + instanceId + " error.", e);
         } finally {
