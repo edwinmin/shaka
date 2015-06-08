@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edwin.shakapersist.dao.ShakaAlertDao">
+	
+    <resultMap id="ShakaAlertMap" type="ShakaAlert">
+        <result column="AlertID" property="alertId"/>
+        <result column="JobID" property="jobId"/>
+        <result column="Rules" property="rules"/>
+        <result column="AlertUserIDs" property="alertUserIds"/>
+        <result column="AlertType" property="alertType"/>
+        <result column="AlertGroupIDs" property="alertGroupIds"/>
+        <result column="AddTime" property="addTime"/>
+        <result column="UpdateTime" property="updateTime"/>
+    </resultMap>
+
+    <select id="loadShakaAlert" parameterType="Integer" resultMap="ShakaAlertMap">
+        <![CDATA[
+		SELECT
+			AlertID,
+			JobID,
+			Rules,
+			AlertUserIDs,
+			AlertType,
+			AlertGroupIDs,
+			AddTime,
+			UpdateTime
+		FROM
+			ShakaAlert
+		WHERE
+			AlertID = #{alertId}
+		]]>
+    </select>
+
+    <insert id="addShakaAlert" parameterType="com.edwin.shakapersist.entity.ShakaAlert">
+        <![CDATA[
+        INSERT INTO
+			ShakaAlert
+		(
+			AlertID,
+			JobID,
+			Rules,
+			AlertUserIDs,
+			AlertType,
+			AlertGroupIDs,
+			AddTime
+		)
+		VALUES
+		(
+			#{alertId},
+			#{jobId},
+			#{rules},
+			#{alertUserIds},
+			#{alertType},
+			#{alertGroupIds},
+			#{addTime}
+		)
+        ]]>
+        <selectKey resultType="java.lang.Integer" keyProperty="alertId">
+            SELECT @@IDENTITY AS alertId
+        </selectKey>
+    </insert>
+	
+</mapper>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location">
+            <value>classpath:shakacontext.properties</value>
+        </property>
+    </bean>
+
+    <bean id="dataSource" name="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+
+        <property name="driverClass" value="${jdbc.driverClass}"/>
+        <property name="jdbcUrl" value="${jdbc.jdbcUrl}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="maxPoolSize" value="${jdbc.maxPoolSize}"/>
+        <property name="minPoolSize" value="${jdbc.minPoolSize}"/>
+        <property name="initialPoolSize" value="${jdbc.initialPoolSize}"/>
+        <property name="maxIdleTime" value="${jdbc.maxIdleTime}"/>
+        <property name="acquireIncrement" value="${jdbc.acquireIncrement}"/>
+        <property name="maxStatements" value="${jdbc.maxStatements}"/>
+        <property name="idleConnectionTestPeriod" value="${jdbc.idleConnectionTestPeriod}"/>
+    </bean>
+
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:sqlmap-config.xml"/>
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- mapper bean -->
+    <bean id="shakaJobDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.edwin.shakapersist.dao.ShakaJobDao"/>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="shakaTaskDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.edwin.shakapersist.dao.ShakaTaskDao"/>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="shakaHostDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.edwin.shakapersist.dao.ShakaHostDao"/>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="shakaAlertDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.edwin.shakapersist.dao.ShakaAlertDao"/>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+
+
+</beans>

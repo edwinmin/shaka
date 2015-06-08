@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edwin.shakapersist.dao.ShakaJobDao">
+
+    <resultMap id="ShakaJobMap" type="ShakaJob">
+        <result column="JobID" property="jobId"/>
+        <result column="Name" property="name"/>
+        <result column="Description" property="description"/>
+        <result column="Type" property="type"/>
+        <result column="DeployServer" property="deployServer"/>
+        <result column="SchedulerServer" property="schedulerServer"/>
+        <result column="HostGroupID" property="hostGroupId"/>
+        <result column="Owner" property="owner"/>
+        <result column="Creator" property="creator"/>
+        <result column="ExeIDentity" property="exeIdentity"/>
+        <result column="Status" property="status"/>
+        <result column="DependencyExpr" property="dependencyExpr"/>
+        <result column="Corn" property="corn"/>
+        <result column="Command" property="command"/>
+        <result column="ExeTimeOut" property="exeTimeOut"/>
+        <result column="WaitTimeOut" property="waitTimeOut"/>
+        <result column="RetryTimes" property="retryTimes"/>
+        <result column="AutoKill" property="autoKill"/>
+        <result column="AddTime" property="addTime"/>
+        <result column="UpdateTime" property="updateTime"/>
+    </resultMap>
+
+
+    <select id="loadShakaJob" parameterType="Integer" resultMap="ShakaJobMap">
+        <![CDATA[
+
+		SELECT
+			*
+		FROM
+			ShakaJob
+		WHERE
+			JobID =#{jobId}
+
+        ]]>
+    </select>
+    
+    <select id="findShakaJobsByStatus" parameterType="map" resultMap="ShakaJobMap">
+		SELECT
+			*
+		FROM
+			ShakaJob
+		WHERE
+			SchedulerServer = #{hostIP}
+		AND	
+			Status in
+		<foreach item="status" collection="statusList" open="(" separator="," close=")">  
+            #{status}  
+        </foreach>   
+    </select>
+    
+    <select id="updateJobStatus" parameterType="map" resultMap="ShakaJobMap">
+		UPDATE
+			ShakaJob
+		SET
+			Status = #{status}#
+		WHERE
+			JobID = #{jobId}
+    </select>
+
+    <insert id="addShakaJob" parameterType="com.edwin.shakapersist.entity.ShakaJob">
+        <![CDATA[
+        INSERT INTO
+			ShakaJob
+		(
+			JobID,
+			Name,
+			Description,
+			Type,
+			DeployServer,
+			SchedulerServer,
+			HostGroupID,
+			Owner,
+			Creator,
+			ExeIDentity,
+			Status,
+			DependencyExpr,
+			Corn,
+			Command,
+			ExeTimeOut,
+			WaitTimeOut,
+			RetryTimes,
+			AutoKill,
+			AddTime
+		)
+		VALUES
+		(
+			#{jobId},
+			#{name},
+			#{description},
+			#{type},
+			#{deployServer},
+			#{schedulerServer},
+			#{hostGroupId},
+			#{owner},
+			#{creator},
+			#{exeIdentity},
+			#{status},
+			#{dependencyExpr},
+			#{corn},
+			#{command},
+			#{exeTimeOut},
+			#{waitTimeOut},
+			#{retryTimes},
+			#{autoKill},
+			now()
+		)
+        ]]>
+        <selectKey resultType="java.lang.Integer" keyProperty="jobId">
+            SELECT @@IDENTITY AS jobId
+        </selectKey>
+    </insert>
+
+</mapper>

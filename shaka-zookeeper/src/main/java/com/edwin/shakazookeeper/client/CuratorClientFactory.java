@@ -1,5 +1,7 @@
 package com.edwin.shakazookeeper.client;
 
+import com.edwin.shakazookeeper.Environment;
+
 /**
  * @author jinming.wu
  * @date 2015-5-22
@@ -7,8 +9,14 @@ package com.edwin.shakazookeeper.client;
 public class CuratorClientFactory implements ZKClientFactory {
 
     @Override
-    public ZKClient createZKClient(String connectionString) {
+    public ZKClient createZKClient(Environment env) {
 
-        return new CuratorClient(connectionString);
+        CuratorClient curatorClient = new CuratorClient(env.getConnectionString());
+        
+        curatorClient.setSessionTimeout(env.getSessionTimeOut());
+
+        curatorClient.init();
+
+        return curatorClient;
     }
 }

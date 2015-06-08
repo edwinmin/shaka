@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <typeAliases>
+        <typeAlias alias="ShakaJob" type="com.edwin.shakapersist.entity.ShakaJob"/>
+        <typeAlias alias="ShakaTask" type="com.edwin.shakapersist.entity.ShakaTask"/>
+        <typeAlias alias="ShakaHost" type="com.edwin.shakapersist.entity.ShakaHost"/>
+        <typeAlias alias="ShakaAlert" type="com.edwin.shakapersist.entity.ShakaAlert"/>
+    </typeAliases>
+
+    <mappers>
+        <mapper resource="ShakaJob.xml"/>
+        <mapper resource="ShakaTask.xml"/>
+        <mapper resource="ShakaHost.xml"/>
+        <mapper resource="ShakaAlert.xml"/>
+    </mappers>
+
+</configuration>

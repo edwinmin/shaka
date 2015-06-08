@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edwin.shakapersist.dao.ShakaHostDao">
+
+    <resultMap id="ShakaHostMap" type="ShakaHost">
+        <result column="Id" property="id"/>
+        <result column="IP" property="iP"/>
+        <result column="Name" property="name"/>
+        <result column="Online" property="online"/>
+        <result column="GroupID" property="groupId"/>
+        <result column="AddTime" property="addTime"/>
+        <result column="UpdateTime" property="updateTime"/>
+    </resultMap>
+
+    <select id="loadShakaHost" parameterType="Integer" resultMap="ShakaHostMap">
+        <![CDATA[
+		SELECT
+			*
+		FROM
+			ShakaHost
+		WHERE
+			Id = #{id}
+		]]>
+    </select>
+    
+    <select id="findHostsByGroup" parameterType="map" resultMap="ShakaHostMap">
+        <![CDATA[
+		SELECT
+			*
+		FROM
+			ShakaHost
+		WHERE
+			GroupID = #{groupId}
+		AND
+			Online = 0
+		]]>
+    </select>
+
+    <insert id="addShakaHost" parameterType="com.edwin.shakapersist.entity.ShakaHost">
+        <![CDATA[
+        INSERT INTO
+			ShakaHost
+		(
+			Id,
+			IP,
+			Name,
+			Online,
+			GroupID,
+			AddTime
+		)
+		VALUES
+		(
+			#{id},
+			#{iP},
+			#{name},
+			#{online},
+			#{groupId},
+			#{addTime}
+		)
+        ]]>
+
+		<selectKey resultType="java.lang.Integer" keyProperty="id">
+			SELECT @@IDENTITY AS id
+		</selectKey>
+
+    </insert>
+
+</mapper>

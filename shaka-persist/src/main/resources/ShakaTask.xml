@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edwin.shakapersist.dao.ShakaTaskDao">
+
+    <resultMap id="ShakaTaskMap" type="ShakaTask">
+        <result column="InstanceID" property="instanceId"/>
+        <result column="TaskID" property="taskId"/>
+        <result column="JobID" property="jobId"/>
+        <result column="StartTime" property="startTime"/>
+        <result column="EndTime" property="endTime"/>
+        <result column="ScheduleTime" property="scheduleTime"/>
+        <result column="Status" property="status"/>
+        <result column="ReturnCode" property="returnCode"/>
+        <result column="ExeHostIP" property="exeHostIP"/>
+        <result column="LogID" property="logId"/>
+        <result column="AddTime" property="addTime"/>
+        <result column="UpdateTime" property="updateTime"/>
+    </resultMap>
+
+    <select id="loadShakaTask" parameterType="String" resultMap="ShakaTaskMap">
+        <![CDATA[
+		SELECT
+			InstanceID,
+			TaskID,
+			JobID,
+			StartTime,
+			EndTime,
+			ScheduleTime,
+			Status,
+			ReturnCode,
+			ExeHostIP,
+			LogID,
+			AddTime,
+			UpdateTime
+		FROM
+			ShakaTask
+		WHERE
+			InstanceID = #{instanceId}
+		]]>
+    </select>
+    
+    <select id="loadLastShakaTask" parameterType="map" resultMap="ShakaTaskMap">
+        <![CDATA[
+		SELECT
+			*
+		FROM
+			ShakaTask
+		WHERE
+			JobID = #{jobId}
+		Order by 
+			AddTime Desc
+		LIMIT 1
+		]]>
+    </select>
+    
+    <update id="updateTask" parameterType="com.edwin.shakapersist.entity.ShakaTask">
+    	UPDATE 
+    		ShakaTask
+    	SET
+    		<if test="startTime != null">StartTime = #{startTime},</if>
+			<if test="endTime != null">EndTime = #{endTime},</if>
+			<if test="scheduleTime != null">ScheduleTime = #{scheduleTime},</if>
+			Status = #{status},
+			ReturnCode = #{returnCode},
+			<if test="exeHostIP != null">ExeHostIP = #{exeHostIP},</if>
+			LogID = #{logId}
+    	WHERE
+    		InstanceID = #{instanceId}
+    </update>
+
+    <insert id="addShakaTask" parameterType="com.edwin.shakapersist.entity.ShakaTask">
+        INSERT INTO
+			ShakaTask
+		(
+			InstanceID,
+			TaskID,
+			JobID,
+		<if test="startTime != null">StartTime,</if>
+		<if test="endTime != null">EndTime,</if>
+		<if test="scheduleTime != null">ScheduleTime,</if>
+			Status,
+			ReturnCode,
+		<if test="exeHostIP != null">ExeHostIP,</if>
+		<if test="logId != 0">LogID,</if>
+			AddTime
+		)
+		VALUES
+		(
+			#{instanceId},
+			#{taskId},
+			#{jobId},
+			<if test="startTime != null">#{startTime},</if>
+			<if test="endTime != null">#{endTime},</if>
+			<if test="scheduleTime != null">#{scheduleTime},</if>
+			#{status},
+			#{returnCode},
+			<if test="exeHostIP != null">#{exeHostIP},</if>
+			<if test="logId != 0">#{logId},</if>
+			NOW()
+		)
+    </insert>
+
+</mapper>
