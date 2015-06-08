@@ -26,7 +26,7 @@ public class ShakaHostTest extends AbstractTest{
 
     @Test
     public void testLoadShakaHost(){
-        ShakaHost shakaHost =shakaHostDao.loadShakaHost("192.168.0.1");
+        ShakaHost shakaHost =shakaHostDao.loadShakaHost("tests");
         System.out.println(JSON.toJSONString(shakaHost));
     }
     

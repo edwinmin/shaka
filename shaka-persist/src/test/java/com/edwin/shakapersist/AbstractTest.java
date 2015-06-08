@@ -14,7 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * Created by shichao.liao on 15/5/21.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath*:shakacontext-*.xml"})
+@ContextConfiguration(locations = { "classpath:shakacontext-*.xml"})
 public abstract class AbstractTest {
 
 }
