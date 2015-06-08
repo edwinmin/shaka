@@ -1,5 +1,10 @@
 package com.edwin.shakazookeeper.client;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import lombok.Setter;
@@ -7,7 +12,6 @@ import lombok.Setter;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.api.CuratorListener;
 import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.curator.framework.api.SetDataBuilder;
 import org.apache.curator.framework.state.ConnectionState;
@@ -24,6 +28,7 @@ import com.edwin.shakazookeeper.exe.ExecuteException;
 import com.edwin.shakazookeeper.listener.ZKDataListener;
 import com.edwin.shakazookeeper.serializer.SerializableSerializer;
 import com.edwin.shakazookeeper.serializer.ZkSerializer;
+import com.google.common.collect.Maps;
 
 /**
  * @author jinming.wu
@@ -31,28 +36,28 @@ import com.edwin.shakazookeeper.serializer.ZkSerializer;
  */
 public class CuratorClient implements ZKClient {
 
-    private static final Logger    logger            = LoggerFactory.getLogger(CuratorClient.class);
+    private static final Logger                   logger            = LoggerFactory.getLogger(CuratorClient.class);
 
-    private volatile AtomicBoolean isConnected       = new AtomicBoolean(false);
-
-    @Setter
-    private String                 connectionString;
+    private volatile AtomicBoolean                isConnected       = new AtomicBoolean(false);
 
     @Setter
-    private RetryPolicy            retryPolicy;
+    private String                                connectionString;
 
     @Setter
-    private ZkSerializer           zkSerializer      = new SerializableSerializer();
-
-    private CuratorListener        curatorListener   = new ShakaCuratorListener(this);
-
-    private CuratorFramework       curatorClient;
+    private RetryPolicy                           retryPolicy;
 
     @Setter
-    private int                    sessionTimeout    = Constants.DEFAULT_SESSION_TIMEOUT;
+    private ZkSerializer                          zkSerializer      = new SerializableSerializer();
+
+    private CuratorFramework                      curatorClient;
+
+    private ConcurrentMap<String, CuratorWatcher> watcherMap        = Maps.newConcurrentMap();
 
     @Setter
-    private int                    connectionTimeout = Constants.DEFAULT_CONNECTION_TIMEOUT;
+    private int                                   sessionTimeout    = Constants.DEFAULT_SESSION_TIMEOUT;
+
+    @Setter
+    private int                                   connectionTimeout = Constants.DEFAULT_CONNECTION_TIMEOUT;
 
     public CuratorClient(String connectionString) {
         this.connectionString = connectionString;
@@ -72,9 +77,20 @@ public class CuratorClient implements ZKClient {
 
                         @Override
                         public void stateChanged(CuratorFramework client, ConnectionState newState) {
-                            if (newState == ConnectionState.CONNECTED || newState == ConnectionState.RECONNECTED) {
-                                System.out.println(newState);
+                            if (newState == ConnectionState.CONNECTED) {
                                 isConnected.set(true);
+                            } else if (newState == ConnectionState.RECONNECTED) {
+                                isConnected.set(true);
+
+                                // 重连时确保watcher成功添加，这里就不处理内存数据的同步了
+                                Map<String, CuratorWatcher> copyWatcherMap = Collections.unmodifiableMap(watcherMap);
+                                for (Entry<String, CuratorWatcher> entry : copyWatcherMap.entrySet()) {
+                                    try {
+                                        curatorClient.checkExists().usingWatcher(entry.getValue()).forPath(entry.getKey());
+                                    } catch (Exception e) {
+                                        logger.error("Rewatch the path miss error, path " + entry.getKey(), e);
+                                    }
+                                }
                             } else {
                                 isConnected.set(false);
                                 logger.error("Lost connection to zookeeper. ");
@@ -82,11 +98,9 @@ public class CuratorClient implements ZKClient {
                         }
                     });
 
-                    curatorClient.getCuratorListenable().addListener(curatorListener);
-
                     curatorClient.start();
 
-                    isConnected.set(true);
+                    isConnected.compareAndSet(false, true);
                 }
             }
         }
@@ -114,6 +128,18 @@ public class CuratorClient implements ZKClient {
                 }
                 return curatorClient.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path,
                                                                                                                 data);
+            }
+        });
+    }
+
+    @Override
+    public String createTemp(final String path) throws Exception {
+        return (String) execute(new Operation() {
+
+            @Override
+            public Object execute() throws Exception {
+                return curatorClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path,
+                                                                                                               new byte[0]);
             }
         });
     }
@@ -168,6 +194,9 @@ public class CuratorClient implements ZKClient {
 
             @Override
             public Object execute() throws Exception {
+                if (!watcherMap.containsKey(path)) {
+                    watcherMap.put(path, watcher);
+                }
                 curatorClient.checkExists().usingWatcher(watcher).forPath(path);
                 return null;
             }
@@ -175,14 +204,17 @@ public class CuratorClient implements ZKClient {
     }
 
     @Override
-    public byte[] getData(final String path, final boolean watched) throws Exception {
+    public byte[] getData(final String path, final CuratorWatcher watcher) throws Exception {
 
         return (byte[]) execute(new Operation() {
 
             @Override
             public Object execute() throws Exception {
                 try {
-                    if (watched) {
+                    if (watcher != null) {
+                        if (!watcherMap.containsKey(path)) {
+                            watcherMap.put(path, watcher);
+                        }
                         return curatorClient.getData().watched().forPath(path);
                     }
 
@@ -195,14 +227,41 @@ public class CuratorClient implements ZKClient {
     }
 
     @Override
-    public boolean exists(final String path, final boolean watched) throws Exception {
+    @SuppressWarnings("unchecked")
+    public List<String> getChildren(final String path, final CuratorWatcher watcher) throws Exception {
+
+        return (List<String>) execute(new Operation() {
+
+            @Override
+            public Object execute() throws Exception {
+                try {
+                    if (watcher != null) {
+                        if (!watcherMap.containsKey(path)) {
+                            watcherMap.put(path, watcher);
+                        }
+                        return curatorClient.getChildren().watched().forPath(path);
+                    }
+
+                    return curatorClient.getChildren().watched().forPath(path);
+                } catch (NoNodeException e) {
+                    return null;
+                }
+            }
+        });
+    }
+
+    @Override
+    public boolean exists(final String path, final CuratorWatcher watcher) throws Exception {
 
         return (Boolean) execute(new Operation() {
 
             @Override
             public Object execute() throws Exception {
                 Stat stat = null;
-                if (watched) {
+                if (watcher != null) {
+                    if (!watcherMap.containsKey(path)) {
+                        watcherMap.put(path, watcher);
+                    }
                     stat = curatorClient.checkExists().watched().forPath(path);
                 } else {
                     stat = curatorClient.checkExists().forPath(path);
@@ -213,9 +272,14 @@ public class CuratorClient implements ZKClient {
     }
 
     @Override
-    public Object getObject(String path, boolean watched) throws Exception {
+    public void removeWatcher(String path) {
+        watcherMap.remove(path);
+    }
 
-        byte[] bytes = this.getData(path, watched);
+    @Override
+    public Object getObject(String path, final CuratorWatcher watcher) throws Exception {
+
+        byte[] bytes = this.getData(path, watcher);
         if (bytes == null || bytes.length == 0) {
             return null;
         }

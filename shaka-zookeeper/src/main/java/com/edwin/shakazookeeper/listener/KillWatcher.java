@@ -5,6 +5,7 @@ import java.util.concurrent.locks.Lock;
 
 import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher.Event.EventType;
 
 /**
  * @author jinming.wu
@@ -24,11 +25,14 @@ public class KillWatcher implements CuratorWatcher {
     @Override
     public void process(WatchedEvent event) throws Exception {
 
-        lock.lock();
-        try {
-            condition.signal();
-        } finally {
-            lock.unlock();
+        // 只处理特点节点变化事件
+        if (event.getType() == EventType.NodeDataChanged) {
+            lock.lock();
+            try {
+                condition.signal();
+            } finally {
+                lock.unlock();
+            }
         }
     }
 }

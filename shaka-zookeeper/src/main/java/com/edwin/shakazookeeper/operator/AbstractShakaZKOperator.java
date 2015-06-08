@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.edwin.shakazookeeper.Constants;
+import com.edwin.shakazookeeper.Environment;
+import com.edwin.shakazookeeper.ShakaZKContext;
 import com.edwin.shakazookeeper.client.ZKClient;
 import com.edwin.shakazookeeper.client.ZKClientWareHouse;
 
@@ -25,7 +27,11 @@ public abstract class AbstractShakaZKOperator implements ZKOperator {
         zkClientWareHouse = new ZKClientWareHouse();
     }
 
-    public AbstractShakaZKOperator() {
+    public AbstractShakaZKOperator() throws Exception {
+        if (zkClient == null) {
+            Environment env = ShakaZKContext.getInstance().getEnv();
+            zkClient = zkClientWareHouse.getZKClient(env);
+        }
     }
 
     public AbstractShakaZKOperator(ZKClient zkClient) {

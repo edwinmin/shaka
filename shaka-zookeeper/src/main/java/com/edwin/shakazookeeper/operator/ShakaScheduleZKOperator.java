@@ -6,9 +6,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.edwin.shakazookeeper.Environment;
 import com.edwin.shakazookeeper.MachineType;
-import com.edwin.shakazookeeper.ShakaZKContext;
 import com.edwin.shakazookeeper.client.ZKClient;
 import com.edwin.shakazookeeper.exe.DateWrapper;
 import com.edwin.shakazookeeper.exe.DateWrapperHolder;
@@ -35,11 +33,7 @@ public class ShakaScheduleZKOperator extends ShakaHeatBeatZKOperator implements 
     private static ConcurrentMap<String, DateWrapper<Lock>> instanceLockMap;
 
     public ShakaScheduleZKOperator() throws Exception {
-        if (zkClient == null) {
-            Environment env = ShakaZKContext.getInstance().getEnv();
-            zkClient = zkClientWareHouse.getZKClient(env);
-        }
-
+        super();
         DateWrapperHolder warapperHolder = new DateWrapperHolder();
         instanceLockMap = warapperHolder.createDateWrapper(DateWrapperHolder.LOCK);
     }
@@ -90,7 +84,7 @@ public class ShakaScheduleZKOperator extends ShakaHeatBeatZKOperator implements 
         Lock lock = getLock(instanceId);
         try {
             lock.lock();
-            ExeContext runContext = (ExeContext) zkClient.getObject(path, false);
+            ExeContext runContext = (ExeContext) zkClient.getObject(path, null);
             if (runContext != null) {
                 throw new ExecuteException("InstanceId " + instanceId + " is scheduling...");
             }
@@ -125,7 +119,7 @@ public class ShakaScheduleZKOperator extends ShakaHeatBeatZKOperator implements 
 
             lock.lock();
 
-            ExeContext runContext = (ExeContext) zkClient.getObject(path, false);
+            ExeContext runContext = (ExeContext) zkClient.getObject(path, null);
             if (runContext == null || runContext.getZkStatus() == null
                 || runContext.getZkStatus() != ZKStatus.RUNNING.code) {
                 throw new ExecuteException("InstanceId " + instanceId + " can't be killed. ");
@@ -140,7 +134,7 @@ public class ShakaScheduleZKOperator extends ShakaHeatBeatZKOperator implements 
             }
 
             // validate the result of kill task
-            runContext = (ExeContext) zkClient.getObject(path, false);
+            runContext = (ExeContext) zkClient.getObject(path, null);
             if (runContext == null || runContext.getZkStatus() != ZKStatus.DELETED.code) {
                 throw new ExecuteException("Delete instance " + instanceId
                                            + " error due to it's status is not deleted. ");
@@ -150,7 +144,8 @@ public class ShakaScheduleZKOperator extends ShakaHeatBeatZKOperator implements 
         } finally {
             String deletePath = getPath(SHAKA, SCHEDULE, agentIP, DELETE, instanceId);
             try {
-                if (zkClient.exists(deletePath, false)) {
+                zkClient.removeWatcher(path);
+                if (zkClient.exists(deletePath, null)) {
                     zkClient.remove(deletePath);
                 }
             } catch (Exception e) {

@@ -55,6 +55,7 @@ public class ShakaCuratorListener implements CuratorListener {
         if (event.getType() == EventType.NodeCreated || event.getType() == EventType.NodeDataChanged) {
         } else if (event.getType() == EventType.NodeDeleted) {
         } else if (event.getType() == EventType.NodeChildrenChanged) {
+            
         }
     }
 }

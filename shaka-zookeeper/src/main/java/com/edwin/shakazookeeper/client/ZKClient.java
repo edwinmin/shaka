@@ -1,5 +1,7 @@
 package com.edwin.shakazookeeper.client;
 
+import java.util.List;
+
 import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.zookeeper.data.Stat;
 
@@ -49,6 +51,15 @@ public interface ZKClient {
     public String create(final String path, final byte[] data) throws Exception;
 
     /**
+     * 创建临时节点
+     * 
+     * @param path
+     * @return
+     * @throws Exception
+     */
+    public String createTemp(final String path) throws Exception;
+
+    /**
      * 节点创建
      * 
      * @param path
@@ -91,7 +102,7 @@ public interface ZKClient {
      * @return
      * @throws Exception
      */
-    public byte[] getData(final String path, final boolean watched) throws Exception;
+    public byte[] getData(String path, CuratorWatcher watcher) throws Exception;
 
     /**
      * 获取对象
@@ -101,7 +112,17 @@ public interface ZKClient {
      * @return
      * @throws Exception
      */
-    public Object getObject(String path, boolean watched) throws Exception;
+    public Object getObject(String path, CuratorWatcher watcher) throws Exception;
+
+    /**
+     * 获取子节点
+     * 
+     * @param path
+     * @param watched
+     * @return
+     * @throws Exception
+     */
+    public List<String> getChildren(String path, CuratorWatcher watcher) throws Exception;
 
     /**
      * 判断是否存在
@@ -111,7 +132,14 @@ public interface ZKClient {
      * @return
      * @throws Exception
      */
-    public boolean exists(final String path, final boolean watched) throws Exception;
+    public boolean exists(final String path, CuratorWatcher watcher) throws Exception;
+
+    /**
+     * 移除watcher
+     * 
+     * @param path
+     */
+    public void removeWatcher(String path);
 
     /**
      * 添加监控listener（非动态）

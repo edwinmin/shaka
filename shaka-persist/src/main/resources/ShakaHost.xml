@@ -12,14 +12,14 @@
         <result column="UpdateTime" property="updateTime"/>
     </resultMap>
 
-    <select id="loadShakaHost" parameterType="Integer" resultMap="ShakaHostMap">
+    <select id="loadShakaHost" parameterType="string" resultMap="ShakaHostMap">
         <![CDATA[
 		SELECT
 			*
 		FROM
 			ShakaHost
 		WHERE
-			Id = #{id}
+			IP = #{ip}
 		]]>
     </select>
     
@@ -62,7 +62,33 @@
 		<selectKey resultType="java.lang.Integer" keyProperty="id">
 			SELECT @@IDENTITY AS id
 		</selectKey>
-
+    </insert>
+    
+    <insert id="addOrUpdate" parameterType="com.edwin.shakapersist.entity.ShakaHost">
+        INSERT INTO
+			ShakaHost
+		(
+			Id,
+			IP,
+			<if test="name != null">Name,</if>
+			Online,
+			GroupID,
+			AddTime
+		)
+		VALUES
+		(
+			#{id},
+			#{iP},
+			<if test="name != null">#{name},</if>
+			#{online},
+			#{groupId},
+			#{addTime}
+		)
+		ON DUPLICATE KEY UPDATE
+    		Online=VALUES(Online)
+		<selectKey resultType="java.lang.Integer" keyProperty="id">
+			SELECT @@IDENTITY AS id
+		</selectKey>
     </insert>
 
 </mapper>

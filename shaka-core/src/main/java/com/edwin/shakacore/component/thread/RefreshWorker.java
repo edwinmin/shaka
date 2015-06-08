@@ -66,7 +66,7 @@ public class RefreshWorker extends AbstractWorker {
 
     @Override
     public void shutdown() {
-        isInterrupted.set(true);
+        isInterrupted.compareAndSet(false, true);
     }
 
     @Override

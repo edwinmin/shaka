@@ -1,6 +1,9 @@
 package com.edwin.shakazookeeper.operator;
 
-import com.edwin.shakautils.lang.ByteHelper;
+import java.util.List;
+
+import org.apache.curator.framework.api.CuratorWatcher;
+
 import com.edwin.shakazookeeper.MachineType;
 import com.edwin.shakazookeeper.client.ZKClient;
 
@@ -16,7 +19,7 @@ public class ShakaHeatBeatZKOperator extends AbstractShakaZKOperator {
 
     private static final String INFO      = "info";
 
-    public ShakaHeatBeatZKOperator() {
+    public ShakaHeatBeatZKOperator() throws Exception {
         super();
     }
 
@@ -29,18 +32,15 @@ public class ShakaHeatBeatZKOperator extends AbstractShakaZKOperator {
 
         init();
 
-        if (zkClient.exists(getPath(SHAKA, HEARTBEAT, machineType.toString().toLowerCase(), REALTIME, machineIP), false)) {
-            zkClient.remove(getPath(SHAKA, HEARTBEAT, machineType.toString().toLowerCase(), REALTIME, machineIP));
-        }
+        // 创建临时心跳节点
+        zkClient.createTemp(getPath(SHAKA, HEARTBEAT, machineType.toString().toLowerCase(), REALTIME, machineIP));
 
-        zkClient.create(getPath(SHAKA, HEARTBEAT, machineType.toString().toLowerCase(), REALTIME, machineIP),
-                        new byte[0]);
-        zkClient.create(getPath(SHAKA, HEARTBEAT, machineType.toString().toLowerCase(), INFO, machineIP), new byte[0]);
+        zkClient.createTemp(getPath(SHAKA, HEARTBEAT, machineType.toString().toLowerCase(), INFO, machineIP));
     }
 
     private void init() throws Exception {
 
-        if (!zkClient.exists(getPath(SHAKA, HEARTBEAT), false)) {
+        if (!zkClient.exists(getPath(SHAKA, HEARTBEAT), null)) {
             zkClient.create(getPath(SHAKA, HEARTBEAT, MachineType.SERVER.toString().toLowerCase(), REALTIME),
                             new byte[0]);
             zkClient.create(getPath(SHAKA, HEARTBEAT, MachineType.SERVER.toString().toLowerCase(), INFO), new byte[0]);
@@ -51,11 +51,7 @@ public class ShakaHeatBeatZKOperator extends AbstractShakaZKOperator {
     }
 
     @Override
-    public void updateHeartBeat(MachineType machineType, String machineIP) throws Exception {
-
-        String path = getPath(SHAKA, HEARTBEAT, machineType.toString().toLowerCase(), REALTIME, machineIP);
-        if (zkClient.exists(path, false)) {
-            zkClient.update(path, null, ByteHelper.getLongBytes(System.currentTimeMillis()));
-        }
+    public List<String> getChildHBNodes(MachineType machineType,CuratorWatcher watcher) throws Exception {
+        return zkClient.getChildren(getPath(SHAKA, HEARTBEAT, machineType.toString().toLowerCase(), REALTIME), watcher);
     }
 }

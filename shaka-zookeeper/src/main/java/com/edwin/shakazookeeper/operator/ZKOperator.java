@@ -1,5 +1,9 @@
 package com.edwin.shakazookeeper.operator;
 
+import java.util.List;
+
+import org.apache.curator.framework.api.CuratorWatcher;
+
 import com.edwin.shakazookeeper.MachineType;
 import com.edwin.shakazookeeper.client.ZKClient;
 
@@ -25,10 +29,9 @@ public interface ZKOperator {
     public void setZKClient(ZKClient zkClient);
 
     /**
-     * 更新心跳
+     * 获取心跳节点
      * 
      * @param machineType
-     * @param machineIP
      */
-    public void updateHeartBeat(MachineType machineType, String machineIP) throws Exception;
+    public List<String> getChildHBNodes(MachineType machineType, CuratorWatcher watcher) throws Exception;
 }

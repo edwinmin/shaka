@@ -8,6 +8,7 @@ import org.quartz.Trigger;
 
 import com.edwin.shakacore.ShakaCoreContext;
 import com.edwin.shakacore.ShakaScheduler;
+import com.edwin.shakacore.component.thread.AgentMonitorWorker;
 import com.edwin.shakacore.component.thread.RefreshWorker;
 import com.edwin.shakazookeeper.MachineType;
 import com.edwin.shakazookeeper.operator.ScheduleZKOperator;
@@ -97,6 +98,9 @@ public class ShakaScheduleListener implements SchedulerListener {
 
         // start workers
         shakaScheduler.getThreadManager().runWorker(new RefreshWorker());
+        
+        shakaScheduler.getThreadManager().runWorker(new AgentMonitorWorker());
+
     }
 
     @Override

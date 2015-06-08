@@ -26,7 +26,15 @@ public class ShakaHostTest extends AbstractTest{
 
     @Test
     public void testLoadShakaHost(){
-        ShakaHost shakaHost =shakaHostDao.loadShakaHost(1);
+        ShakaHost shakaHost =shakaHostDao.loadShakaHost("192.168.0.1");
         System.out.println(JSON.toJSONString(shakaHost));
+    }
+    
+    @Test
+    public void testAddOrUpdate(){
+        ShakaHost shakaHost = new ShakaHost();
+        shakaHost.setIP("192.168.0.1");
+        shakaHost.setOnline(0);
+        shakaHostDao.addOrUpdate(shakaHost);
     }
 }
