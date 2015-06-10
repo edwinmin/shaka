@@ -12,7 +12,7 @@
         <result column="UpdateTime" property="updateTime"/>
     </resultMap>
 
-    <select id="loadShakaHost" parameterType="string" resultMap="ShakaHostMap">
+    <select id="loadShakaHost" parameterType="map" resultMap="ShakaHostMap">
         <![CDATA[
 		SELECT
 			*

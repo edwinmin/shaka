@@ -13,10 +13,11 @@ public interface ShakaHostDao {
 
     public int addShakaHost(ShakaHost shakaHost);
 
-    public ShakaHost loadShakaHost(String ip);
+    public ShakaHost loadShakaHost(@Param("ip")
+    String ip);
 
     public List<ShakaHost> findHostsByGroup(@Param("groupId")
     int groupId);
-    
+
     public int addOrUpdate(ShakaHost shakaHost);
 }
