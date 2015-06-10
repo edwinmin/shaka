@@ -227,6 +227,18 @@ public class CuratorClient implements ZKClient {
     }
 
     @Override
+    public byte[] getData(final String path) throws Exception {
+
+        return (byte[]) execute(new Operation() {
+
+            @Override
+            public Object execute() throws Exception {
+                    return curatorClient.getData().forPath(path);
+            }
+        });
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public List<String> getChildren(final String path, final CuratorWatcher watcher) throws Exception {
 
@@ -267,6 +279,17 @@ public class CuratorClient implements ZKClient {
                     stat = curatorClient.checkExists().forPath(path);
                 }
                 return stat != null;
+            }
+        });
+    }
+
+    @Override
+    public boolean exists(final String path) throws Exception {
+        return (Boolean) execute(new Operation() {
+
+            @Override
+            public Object execute() throws Exception {
+                   return curatorClient.checkExists().forPath(path);
             }
         });
     }
@@ -322,4 +345,5 @@ public class CuratorClient implements ZKClient {
     @Override
     public void addListener(ZKDataListener dataListener) {
     }
+
 }

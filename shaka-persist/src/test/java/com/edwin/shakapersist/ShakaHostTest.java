@@ -33,8 +33,8 @@ public class ShakaHostTest extends AbstractTest{
     @Test
     public void testAddOrUpdate(){
         ShakaHost shakaHost = new ShakaHost();
-        shakaHost.setIP("192.168.0.1");
-        shakaHost.setOnline(0);
+        shakaHost.setIP("192.168.0iii.1");
+        shakaHost.setOnline(1);
         shakaHostDao.addOrUpdate(shakaHost);
     }
 }

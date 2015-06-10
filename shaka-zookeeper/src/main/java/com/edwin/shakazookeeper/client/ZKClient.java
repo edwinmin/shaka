@@ -2,6 +2,7 @@ package com.edwin.shakazookeeper.client;
 
 import java.util.List;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.zookeeper.data.Stat;
 
@@ -105,6 +106,16 @@ public interface ZKClient {
     public byte[] getData(String path, CuratorWatcher watcher) throws Exception;
 
     /**
+     * 获取数据
+     *
+     * @param path
+     * @param watched
+     * @return
+     * @throws Exception
+     */
+    public byte[] getData(String path) throws Exception;
+
+    /**
      * 获取对象
      * 
      * @param path
@@ -134,6 +145,15 @@ public interface ZKClient {
      */
     public boolean exists(final String path, CuratorWatcher watcher) throws Exception;
 
+
+    /**
+     * 判断是否存在
+     *
+     * @param path
+     * @return
+     * @throws Exception
+     */
+    public boolean exists(final String path) throws Exception;
     /**
      * 移除watcher
      * 
@@ -147,4 +167,5 @@ public interface ZKClient {
      * @param dataListener
      */
     public void addListener(ZKDataListener dataListener);
+
 }

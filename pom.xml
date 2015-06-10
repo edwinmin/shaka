@@ -74,5 +74,6 @@
 		<module>shaka-utils</module>
         <module>shaka-zookeeper</module>
 		<module>shaka-persist</module>
+		<module>shaka-client</module>
 	</modules>
 </project>
